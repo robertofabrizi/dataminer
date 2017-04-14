@@ -49,8 +49,8 @@ Create a new basic Java project, and import the following required compile time 
 	monitoraggioV4.0.2.jar (the dataminer core jar)
 	
 ## Development of a very basic model class
-Your model class should extend the basic model implementation provided by the core, called **BaseModel**.
-**BaseModel** has an abstract **parse()** method that must be implemented; moreover, two constructors are needed, a noargs ctor used by Hibernate, and one that takes a String as the single input parameter.
+Your model class should extend the basic model implementation provided by the core, called `BaseModel`.
+`BaseModel` has an abstract `parse()` method that must be implemented; moreover, two constructors are needed, a noargs ctor used by Hibernate, and one that takes a String as the single input parameter.
 This String is the data read by the core via a connector, and passed to this model.
 Let's create a first, basic model class:
 
@@ -85,7 +85,7 @@ public class TestModel extends BaseModel {
 This is it for our very first model implementation!
 
 ## Configuring the dataminer to use the new model class
-Usually, it is a good idea to start the configuration from the **config.properties file**.
+Usually, it is a good idea to start the configuration from the **config.properties** file.
 It should look like this:
 ```
 # The name of the class to use to create an InitialContext object. This parameter is mandatory if you want to use JMS publishing.
@@ -174,4 +174,41 @@ This is telling the core to start:
 	</root>
 </models>
 ```
-* this means that the connector executes the query **SELECT SYSDATE()** and returns its result back to the core. The core compares the result of the query, agaist the root of the first tree. Let's assume that the query returned `14-04-2017`, this is compared against the String `04` first; `04` is included in the current String of interest, therefore the core goes one level below. `1999` isn't a substring of `14-04-2017`, therefore this part of the first tree is discarded, and the core never tests if `01` is a substring of the input String or not. At the same level of the already discarded `1999` there is `2000`, which is also discarded, therefore the whole first tree of root `04` is ignored. The core goes to the second tree, and tests `2017` against the input String. Since `2017` is included, it goes inside that tree, and reaches the one and only leaf right away, thus passing `14-04-2017` to its String ctor. Once the core finds one leaf, it considers the input String handled, therefore it never goes ahead to test it against the root of the third tree, `2018`.
+* this means that the connector executes the query `SELECT SYSDATE()` and returns its result back to the core. The core compares the result of the query, agaist the root of the first tree. Let's assume that the query returned `14-04-2017`, this is compared against the String `04` first; `04` is included in the current String of interest, therefore the core goes one level below. `1999` isn't a substring of `14-04-2017`, therefore this part of the first tree is discarded, and the core never tests if `01` is a substring of the input String or not. At the same level of the already discarded `1999` there is `2000`, which is also discarded, therefore the whole first tree of root `04` is ignored. The core goes to the second tree, and tests `2017` against the input String. Since `2017` is included, it goes inside that tree, and reaches the one and only leaf right away, thus passing `14-04-2017` to its String ctor. Once the core finds one leaf, it considers the input String handled, therefore it never goes ahead to test it against the root of the third tree, `2018`.
+* the core, after having instantiated a **com.rhad.dataminer.model.implementations.test.TestModel** passing to it the input String `14-04-2017`, proceeds to call its `parse()` method, that in our test example previously defined should end printing a log entry stating: *The received input is: 14-04-2017*.
+
+Two more configuration files are needed, the **log4j** logging configuration and the **c3p0** connection pool configuration.
+
+An example of the first could be:
+```
+log4j.rootLogger=INFO, rootAppender
+log4j.appender.rootAppender=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.rootAppender.Append=false
+log4j.appender.rootAppender.File=${log_path}/test.log
+log4j.appender.rootAppender.threshold=TRACE
+log4j.appender.rootAppender.layout=org.apache.log4j.PatternLayout
+log4j.appender.rootAppender.layout.ConversionPattern=%d{ABSOLUTE} [%t] [%-5p] %C{2} %x - %m%n
+log4j.logger.com.rhad=TRACE
+```
+
+while the second could look like this:
+```
+#Managing Pool Size and Connection Age 
+#c3p0.maxConnectionAge=172800 
+c3p0.maxConnectionAge=14400
+
+#Configuring Connection Testing
+c3p0.automaticTestTable=C3P0TestTable
+c3p0.testConnectionOnCheckin=true
+c3p0.idleConnectionTestPeriod=600
+
+#Configuring Statement Pooling
+c3p0.statementCacheNumDeferredCloseThreads=1
+
+#Configuring Recovery From Database Outages
+c3p0.acquireRetryDelay=10000
+
+#Other DataSource Configuration  
+#maxAdministrativeTaskTime Default: 0
+#numHelperThreads Default: 3
+```
