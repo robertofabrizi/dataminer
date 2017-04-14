@@ -257,5 +257,5 @@ The dataminer comes with a few management scripts in the **bin** folder.
 
 **Inside a Docker container**, Docker containers can run just one process (with PID = 1), and they MUST run one process, which means that starting the dataminer in background is not possible inside them; this is the reason why there is no separation between the launcher shell and the dataminer shell when it comes to Docker containers. The idea is that the functionalities like stop/restart are offered by the container itself, therefore the dataminer script and its properties file is all that is needed. Just firing the Java process in foreground would not be enough though, because signals like SIGTERM would be intercepted by the hanged calling script rather than the actual Java process, therefore the latter must replace the calling script and become the new (and only) running process inside the container (PID=1), which is obtained by prepending the `exec` command to the Java launch instruction.
 
-* **docker_dataminer.sh**: fires the Java process. Do not use it directly
-* **docker_run.properties**: the properties to use when launching the Dataminer via the `cygwin_launcher.sh` script
+* **docker_dataminer.sh**: fires the Java process. This is the script targeted by the CMD directive of the dataminer's Dockerfile base image.
+* **docker_run.properties**: the properties to use when launching the Dataminer via the `docker_dataminer.sh` script
