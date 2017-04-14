@@ -233,3 +233,20 @@ Let's assume that, following this readme, we produced some new files, located as
 * test.xml: **config** folder
 * dataminer-model-test.jar: **installation_lib** folder
 
+## Dataminer process
+The dataminer comes with a few management scripts in the **bin** folder.
+
+**On a Linux/Unix system**, the scripts to manage the dataminer are the ones that contain the launcher substring, not the ones that contain the dataminer one. The reason is that the dataminer script starts the Java process **in foreground**, and then waits for it to terminate. If it terminates with a return code that is different from 0, it re-exports the classpath and restarts the Java process again. This is useful both in events of a crash, both to handle a stop/restart request via the Jmx/REST API. The launcher script is therefore in charge of management, and accepts a few input parameters, that can be listed by calling it without passing anything to it. For example, `./bash_launcher.sh` outputs *Usage: ./bash_launcher.sh { start | restart | stop | status | pid }*.
+
+* bash_launcher.sh: manages the dataminer on a Linux/Unix system using the `/bin/bash` shell
+* bash_dataminer.sh: fires the Java process. Do not use it directly
+* bash_run.properties: the properties to use when launching the Dataminer via the `bash_launcher.sh` script
+* ksh_launcher.sh: manages the dataminer on a Linux/Unix system using the `/usr/bin/ksh` shell
+* ksh_dataminer.sh: fires the Java process. Do not use it directly
+* ksh_run.properties: the properties to use when launching the Dataminer via the `ksh_launcher.sh` script
+
+**On a Windows system running cygwin**, the scripts are almost identical to the Linux/Unix bash scripts, with some exceptions to make them work in a cygwin environment. For example, the ps command in a cygwin environment must be enforced to list Windows processes that run outside of it. Moreover, the classpath has to be exported in a Linux/Unix format even thought it is running on a Windows machine and on a virtual mount point, therefore the command `-cp "$CLASSPATH"` becomes `-cp "$(cygpath -pw "$CLASSPATH")"`.
+
+* cygwin_launcher.sh: manages the dataminer on a Windows system and cygwin shell using the `/bin/bash` shell
+* cygwin_dataminer.sh: fires the Java process. Do not use it directly
+* cygwin_run.properties: the properties to use when launching the Dataminer via the `cygwin_launcher.sh` script
