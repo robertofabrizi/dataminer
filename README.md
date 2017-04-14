@@ -84,7 +84,7 @@ public class TestModel extends BaseModel {
 
 This is it for our very first model implementation!
 
-## Configuring the dataminer to use the new model class
+## Configuring the dataminer
 Usually, it is a good idea to start the configuration from the **config.properties** file.
 It should look like this:
 ```
@@ -212,3 +212,6 @@ c3p0.acquireRetryDelay=10000
 #maxAdministrativeTaskTime Default: 0
 #numHelperThreads Default: 3
 ```
+
+## Dataminer filesystem structure
+This is the structure of the dataminer on a filesystem:
