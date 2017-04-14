@@ -37,4 +37,8 @@ http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.h
 
     java: command not found
 
-If your version of Java is before Java6 OR you only have the JRE installed, it must be upgraded to at the very least Java6 SDK.
+If your version of Java is before Java6 OR you only have the JRE installed, it must be upgraded at the very least to Java6 SDK.
+
+Although not necessary, it is strongly recommended to download and install the latest version of the Netbeans IDE (Java SE version):
+https://netbeans.org/downloads/
+
