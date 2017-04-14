@@ -231,7 +231,7 @@ Let's assume that, following this readme, we produced some new files, located as
 * test.properties: **config** folder
 * test.sql: **config** folder
 * test.xml: **config** folder
-* dataminer-model-test.jar: **installation_lib** folder
+* dataminer-plugin-model-test.jar: **installation_lib** folder
 
 ## Dataminer process management
 The dataminer comes with a few management scripts in the **bin** folder.
