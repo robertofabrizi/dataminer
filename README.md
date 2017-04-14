@@ -16,13 +16,25 @@
 #### The data extraction tool of the Maas platform.
 The dataminer is composed of three main parts:
 * One core: inspired by both the Swing and Spring frameworks, it manages the lifecycle of the application. In particular, it is in charge of:
-** reading the config.properties file and use it as its base configuration
-** read the config.xml file to decide which connectors to start
-** receive the data extracted from each connector and decide if and what to do with it (basically, if there is any model for it)
-** offers the following features to model instances: be persisted on a target database, be sent to a target jms topic, be sent via email, be sent to a jtec server
-** offers a jmx and rest interface for management
-** ...
+  * reading the config.properties file and use it as its base configuration
+  * read the config.xml file to decide which connectors to start
+  * receive the data extracted from each connector and decide if and what to do with it (basically, if there is any model for it)
+  * offers the following features to model instances: be persisted on a target database, be sent to a target jms topic, be sent via email, be sent to a jtec server
+  * offers a jmx and rest interface for management
+  * ...
 * N connectors: each connector knows how to extract data from a target source and technology, but doesn't know what to look for, therefore it can be reused
 * M models: a model for each business even of interest. A model receives from the core an entry that it's in charge of managing, and must implement at the very least the parse() method, that takes such input and parses it assigning the insteresting parts to instance variables. It can then signal the core that it wants to be persisted, sent via email, etc. 
 
-Usually, the workflow is to start by creating the new model classes, then create the configuration files and go ahead with the deployment.
+Usually, the workflow begins by creating the new model classes, then create the configuration files and go ahead with the deployment.
+
+## Dependencies
+First, make sure you have Java6+ JDK installed.
+
+    java -version
+
+If the output looks like this, you need to install Java or add it to your environment: 
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
+    java: command not found
+
+If your version of Java is before Java6 OR you only have the JRE installed, it must be upgraded to at the very least Java6 SDK.
