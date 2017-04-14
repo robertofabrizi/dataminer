@@ -215,3 +215,21 @@ c3p0.acquireRetryDelay=10000
 
 ## Dataminer filesystem structure
 This is the structure of the dataminer on a filesystem:
+* **bin**: this folder contains the various scripts to start the dataminer, plus a properties file to set some configurations
+* **certificate**: this folder contains the certificate that validates the dataminer. After its expiration date, the dataminer won't be able to run anymore unless this certificate is updated
+* **config**: the folder containing all the configuration files
+* **connector_lib**: the folder containing most/all the connector jar plus their required dependencies
+* **deployment**: mostly unused
+* **elab**: mostly unused
+* **framework_lib**: the folder containing all the dataminer dependencies
+* **installation_lib**: the folder containing the variable part of the code, for example the jar of the custom models plus their dependencies
+* **log**: the folder that should contain the produced logs
+
+Let's assume that, following this readme, we produced some new files, located as follows:
+* c3p0.properties: **config** folder
+* log4j.properties: **config** folder
+* test.properties: **config** folder
+* test.sql: **config** folder
+* test.xml: **config** folder
+* dataminer-model-test.jar: **installation_lib** folder
+
