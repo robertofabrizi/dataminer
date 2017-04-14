@@ -233,7 +233,7 @@ Let's assume that, following this readme, we produced some new files, located as
 * test.xml: **config** folder
 * dataminer-model-test.jar: **installation_lib** folder
 
-## Dataminer process
+## Dataminer process management
 The dataminer comes with a few management scripts in the **bin** folder.
 
 **On a Linux/Unix system**, the scripts to manage the dataminer are the ones that contain the launcher substring, not the ones that contain the dataminer one. The reason is that the dataminer script starts the Java process **in foreground**, and then waits for it to terminate. If it terminates with a return code that is different from 0, it re-exports the classpath and restarts the Java process again. This is useful both in events of a crash, both to handle a stop/restart request via the Jmx/REST API. The launcher script is therefore in charge of management, and accepts a few input parameters, that can be listed by calling it without passing anything to it. For example, `./bash_launcher.sh` outputs *Usage: ./bash_launcher.sh { start | restart | stop | status | pid }*.
