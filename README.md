@@ -55,7 +55,7 @@ This String is the data read by the core via a connector, and passed to this mod
 Let's create a first, basic model class:
 
 ```
-package yourpackage.model.implementations.test;
+package com.rhad.dataminer.model.implementations.test;
 
 import com.rhad.dataminer.model.superclasses.BaseModel;
 import java.text.ParseException;
@@ -83,3 +83,95 @@ public class TestModel extends BaseModel {
 ```
 
 This is it for our very first model implementation!
+
+## Configuring the dataminer to use the new model class
+Usually, it is a good idea to start the configuration from the **config.properties file**.
+It should look like this:
+```
+# The name of the class to use to create an InitialContext object. This parameter is mandatory if you want to use JMS publishing.
+# If unspecified, it will default to org.jnp.interfaces.NamingContextFactory
+#initial_context_factory=org.jnp.interfaces.NamingContextFactory
+
+# The JNDI server URL. This parameter is mandatory if you want to use JMS publishing.
+#provider_url=jnp://ec2-....eu-central-1.compute.amazonaws.com:1099
+
+# The name of the persistence-unit to use (must be defined in the persistence.xml file). This parameter is mandatory.
+#entity_manager_factory=mysqlamazontest
+
+# The port on which the HTML-JMX is started. This parameter is optional. 
+# The default is -1, which means that no HTML-JMX adapter should be started
+#html_jmx_adapter_port=8087
+
+# The username used by the HTML-JMX adapter. This parameter is optional.
+#html_jmx_adapter_user=administrator
+
+# The password used by the HTML-JMX adapter. This parameter is optional.
+#html_jmx_adapter_password=klee.74@
+
+# The maximum number of concurrent threads that the ResourceManager can start to parse Resource instances. This parameter is optional.
+# The default is -1, which means that there is no limit to the number of concurrent threads that can be started.
+# thread_limit=5
+
+# The name of the application's certificate to use to determine if the application has expired. This parameter is mandatory.
+certificate_file=dataminerV4.jks
+
+# The path on the user's filesystem of the application's certificate to use to determine if the application has expired. This parameter is optional. 
+# The default is the application's certificate folder
+# certificate_path=/sw/monitoraggio/monitoraggioV4/certificate/dataminer.jks
+```
+The default values for basically each property should be fine for now. The next file to configure is the **config.xml** file. This configuration file is the most important one, because it tells the core what it should do. Let's see an example of it:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Allowed tags
+        <resources>, mandatory, must be the enclosing tags of this xml
+                <resource>, at least one is mandatory, use this tag to create a new resource of interest
+                        <resource-file>, each resource must have a resource-file, the source of the data to monitor
+                        <properties-file>, optional, if the parser needs extra data to run
+                        <pattern-file>, each parser on a resource must have a way to tell which data is of interest
+                        <resource-name>, optional, the name of the parser
+                        <resource-type>, whether the parser is a static one, or a watcher must be created
+                        <parser-class>, the name of the class to use to parse the resource-file
+			<xml-schema>, can be omitted when JMS isnt needed, the XML-Schema to use to marshall this Resource
+			<jaxb-class>, can be omitted when JMS isnt needed, the class to be used by JAXB to marshall this Resource
+-->
+<resources>
+	<resource>
+		<resource-file>/your_base_path/java/monitoraggioV4/config/test.sql</resource-file>
+		<pattern-file>/your_base_path/java/monitoraggioV4/config/test.xml</pattern-file>
+		<properties-file>/your_base_path/java/monitoraggioV4/config/test.properties</properties-file>
+		<resource-name>Db_TestQuerier</resource-name>
+		<resource-type>static</resource-type>
+		<parser-class>com.rhad.dataminer.parser.implementations.db.persistent.DbReader</parser-class>
+	</resource>
+</resources>
+```
+
+This is telling the core to start:
+* one connector, of type **com.rhad.dataminer.parser.implementations.db.persistent.DbReader**
+* this connector accepts some configuration properties (each connector supports or needs different properties, check its documentation to find them out), specified in the **/your_base_path/java/monitoraggioV4/config/test.properties** file. In this example, the following properties are defined:
+	* PERSISTENCE_UNIT=amazon_mysql_testdb
+	* TIME_BETWEEN_QUERIES=600000
+* being a database connector that uses JPA to abstract itself from the specific DBMS vendor, there must be a **persistence.xml** file inside a **META-INF** folder. In said file there can be multiple persistence units defined, one of which has to be called **amazon_mysql_testdb**, as requested by the **/your_base_path/java/monitoraggioV4/config/test.properties** file. This is the target database instance for the connector.
+* as per the **com.rhad.dataminer.parser.implementations.db.persistent.DbReader** connector documentation, it periodically reloads the file **/your_base_path/java/monitoraggioV4/config/test.sql** that contains one or more queries, and fires it/them.
+* the connector passes the result of the query(ies) to the core, which uses the xml file **/your_base_path/java/monitoraggioV4/config/test.xml** to decide if the returned data is of interest. For example, let's add the following query to it: `SELECT SYSDATE();`
+* the file **/your_base_path/java/monitoraggioV4/config/test.xml** is basically a collection of trees where each node is a String or regex against which the extracted data is compared. The leaves of the trees must be model classes. Assuming that a path from the node of a tree to one of its leaves is all matched agaist the input data, then this data is passed to the String ctor of the model class mapped by the leaf. For example:
+```
+<models>
+	<root value="04">
+		<node1 value="1999" />
+                        <node2 value="01" />
+                                <leaf value="com.rhad.dataminer.model.implementations.test.OlderTestModel" />
+		<node1 value="2000" />
+                        <node2 value="01" />
+                                <leaf value="com.rhad.dataminer.model.implementations.test.AnotherOlderTestModel" />
+	</root>
+	<root value="2017">
+		<leaf value="com.rhad.dataminer.model.implementations.test.TestModel" />
+	</root>
+	<root value="2018">
+		<leaf value="com.rhad.dataminer.model.implementations.test.FutureTestModel" />
+	</root>
+</models>
+```
+* this means that the connector executes the query **SELECT SYSDATE()** and returns its result back to the core. The core compares the result of the query, agaist the root of the first tree. Let's assume that the query returned `14-04-2017`, this is compared against the String `04` first; `04` is included in the current String of interest, therefore the core goes one level below. `1999` isn't a substring of `14-04-2017`, therefore this part of the first tree is discarded, and the core never tests if `01` is a substring of the input String or not. At the same level of the already discarded `1999` there is `2000`, which is also discarded, therefore the whole first tree of root `04` is ignored. The core goes to the second tree, and tests `2017` against the input String. Since `2017` is included, it goes inside that tree, and reaches the one and only leaf right away, thus passing `14-04-2017` to its String ctor. Once the core finds one leaf, it considers the input String handled, therefore it never goes ahead to test it against the root of the third tree, `2018`.
