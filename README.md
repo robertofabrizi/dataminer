@@ -19,11 +19,11 @@ The dataminer is composed of three main parts:
   * reading the config.properties file and use it as its base configuration
   * read the config.xml file to decide which connectors to start
   * receive the data extracted from each connector and decide if and what to do with it (basically, if there is any model for it)
-  * offers the following features to model instances: be persisted on a target database, be sent to a target jms topic, be sent via email, be sent to a jtec server
-  * offers a jmx and rest interface for management
+  * offers the following features to model instances: be persisted on a target database, be sent to a target Jms Topic, be sent via email, be sent to a jtec server
+  * offers a Jmx and REST interface for management
   * ...
 * N connectors: each connector knows how to extract data from a target source and technology, but doesn't know what to look for, therefore it can be reused
-* M models: a model for each business even of interest. A model receives from the core an entry that it's in charge of managing, and must implement at the very least the parse() method, that takes such input and parses it assigning the insteresting parts to instance variables. It can then signal the core that it wants to be persisted, sent via email, etc. 
+* M models: a model for each business even of interest. A model receives from the core an entry that it's in charge of managing, and must implement at the very least the **parse()** method, that takes such input and parses it assigning the insteresting parts to instance variables. It can then signal the core that it wants to be persisted, sent via email, etc. 
 
 Usually, the workflow begins by creating the new model classes, then create the configuration files and go ahead with the deployment.
 
@@ -42,3 +42,44 @@ If your version of Java is before Java6 OR you only have the JRE installed, it m
 Although not necessary, it is strongly recommended to download and install the latest version of the Netbeans IDE (Java SE version):
 https://netbeans.org/downloads/
 
+## Configuration
+Create a new basic Java project, and import the following required compile time dependencies:
+	
+	log4j-1.2.16.jar or higher
+	monitoraggioV4.0.2.jar (the dataminer core jar)
+	
+## Development of a very basic model class
+Your model class should extend the basic model implementation provided by the core, called **BaseModel**.
+**BaseModel** has an abstract **parse()** method that must be implemented; moreover, two constructors are needed, a noargs ctor used by Hibernate, and one that takes a String as the single input parameter.
+This String is the data read by the core via a connector, and passed to this model.
+Let's create a first, basic model class:
+
+```
+package yourpackage.model.implementations.test;
+
+import com.rhad.dataminer.model.superclasses.BaseModel;
+import java.text.ParseException;
+
+/**
+ * This class doesn't model any table, it just prints what it has received from the core as its input.
+ * @author Roberto Fabrizi
+ */
+public class TestModel extends BaseModel {
+
+    private String inputToParse;    
+
+    @Override
+    public void parse() throws ParseException {  
+        super.getLogger().debug("The received input is: "+this.inputToParse);
+    }
+    
+    public TestModel() {
+    }
+
+    public TestModel(String input) {
+        this.inputToParse=input;
+    }
+}
+```
+
+This is it for our very first model implementation!
