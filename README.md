@@ -46,7 +46,7 @@ https://netbeans.org/downloads/
 Create a new basic Java project, and import the following required compile time dependencies:
 	
 	log4j-1.2.16.jar or higher
-	monitoraggioV4.0.2.jar (the dataminer core jar)
+	the dataminer core jar
 	
 ## Development of a very basic model class
 Your model class should extend the basic model implementation provided by the core, called `BaseModel`.
