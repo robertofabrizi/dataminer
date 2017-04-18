@@ -196,21 +196,29 @@ while the second could look like this:
 #Managing Pool Size and Connection Age 
 #c3p0.maxConnectionAge=172800 
 c3p0.maxConnectionAge=14400
+#c3p0.maxIdleTime=1800
 
-#Configuring Connection Testing
+#Configuring Connection Testing: must be disabled if one of the queried databases has read only priviledges, 
+#as c3p0 will try to create it on all target persistence units. 
+#Use persistence unit specific preferredTestQuery that make sense instead (this property would override those and make them unused)
 c3p0.automaticTestTable=C3P0TestTable
 c3p0.testConnectionOnCheckin=true
-c3p0.idleConnectionTestPeriod=600
 
-#Configuring Statement Pooling
+#Configuring Statement Pooling: some databases and/or JDBC drivers, most notably Oracle, do not handle 
+#the case well and freeze, leading to deadlocks. Setting this parameter to a positive value should eliminate the issue. 
+#This parameter should only be set if you observe that attempts by c3p0 to close() cached statements freeze 
+#(usually you'll see APPARENT DEADLOCKS in your logs). If set, this parameter should almost always be set to 1
 c3p0.statementCacheNumDeferredCloseThreads=1
+c3p0.maxStatementsPerConnection=50
 
 #Configuring Recovery From Database Outages
 c3p0.acquireRetryDelay=10000
+#c3p0.acquireRetryDelay=300000
 
 #Other DataSource Configuration  
 #maxAdministrativeTaskTime Default: 0
 #numHelperThreads Default: 3
+c3p0.numHelperThreads=5
 ```
 
 ## Dataminer filesystem structure
@@ -226,7 +234,8 @@ This is the structure of the dataminer on a filesystem:
 * **log**: the folder that should contain the produced logs
 
 Let's assume that, following this readme, we produced some new files, located as follows:
-* c3p0.properties: **config** folder
+* c3p0.properties: **config/META-INF** folder
+* persistence.xml: **config/META-INF** folder
 * log4j.properties: **config** folder
 * test.properties: **config** folder
 * test.sql: **config** folder
