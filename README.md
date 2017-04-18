@@ -1,5 +1,5 @@
-# [![Application icon](https://lh4.googleusercontent.com/LZNc-LXQZkLS_wo2bSfORPnHmaurkF7ahI88irILnnV0qIU4ThHKS1rYltcTFTSW_liF7C9CXy8n9nk=w1920-h950)][icon]
-[icon]: https://lh4.googleusercontent.com/LZNc-LXQZkLS_wo2bSfORPnHmaurkF7ahI88irILnnV0qIU4ThHKS1rYltcTFTSW_liF7C9CXy8n9nk=w1920-h950
+# [![Application icon](https://drive.google.com/file/d/0B4-l-6HOjC45dmZNNDV2ZjlIVzA/view?usp=sharing)][icon]
+[icon]: https://drive.google.com/file/d/0B4-l-6HOjC45dmZNNDV2ZjlIVzA/view?usp=sharing
 
 # Maas - Dataminer
 [![Gem Version](https://img.shields.io/gem/v/t.svg)][gem]
